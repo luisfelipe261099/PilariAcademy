@@ -1,0 +1,40 @@
+{
+  "name": "pilari_academy",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel --ui tui",
+    "dev:client": "pnpm --filter client dev",
+    "dev:server": "pnpm --filter server dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "turbo run clean"
+  },
+  "pnpm": {
+    "overrides": {
+      "multer@<2.2.0": "^2.2.0",
+      "uuid@<11.1.1": "^11.1.1",
+      "fast-xml-parser@>=5.9.3 <5.10.1": "^5.10.1",
+      "protobufjs@>=7.5.0 <7.6.5": "^7.6.5"
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "prettier": "^3.7.0",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.3.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.53.0"
+  }
+}

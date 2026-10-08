@@ -1,0 +1,1 @@
+ALTER TABLE `courses` ADD `available_at` timestamp(3);

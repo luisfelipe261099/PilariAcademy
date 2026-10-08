@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - types
+
+# Supply-chain hardening (satisfaz o SAST/Semgrep e blinda a instalação).
+# Efetivas a partir do pnpm 10.16/10.21/10.26; inertes no pnpm 9 atual, mas
+# já declaradas para valerem quando o EAD subir de versão.
+minimumReleaseAge: 10080 # espera 7 dias antes de instalar versão recém-publicada
+trustPolicy: no-downgrade # impede downgrade silencioso de políticas de segurança
+blockExoticSubdeps: true # bloqueia transitivas de fontes exóticas (git/url)
+
+# Trava transitivos vulneráveis (auditoria de segurança):
+# multer < 2.2.0 tem DoS (GHSA-3p4h-7m6x-2hcm e cleanup incompleto de uploads abortados).
+overrides:
+  multer: '>=2.2.0'

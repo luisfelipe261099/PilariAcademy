@@ -1,0 +1,54 @@
+/**
+ * Paleta da marca Studio Pilari + tokens semânticos (tema claro/escuro).
+ * Origem: site do studio (verde sálvia + rosa). A marca leva o verde nos botões e textos de destaque
+ * e o rosa nos detalhes; os tokens semânticos (bg, card, surface, ink, muted, border, accent,
+ * brand-soft) adaptam no .dark.
+ *
+ * Ex.: bg-card, text-ink, border-border, text-accent, var(--color-brand)
+ */
+@theme {
+  /* Marca — verde sálvia (fixas) */
+  --color-brand: #5c6e5a;
+  --color-brand-dark: #45523f;
+  --color-brand-bright: #a85f6c;
+  --color-brand-overlay: #2f3a2c;
+
+  /* Rosa (ação / CTA) */
+  --color-cta: #c67c89;
+  --color-cta-hover: #d99aa5;
+  --color-cta-light: #f3d5da;
+
+  /* Semânticos — claro (default) */
+  --color-accent: #5c6e5a;
+  --color-bg: #f8f8f7;
+  --color-card: #ffffff;
+  --color-surface: #e8ece7;
+  --color-brand-soft: #f2f4f1;
+  --color-ink: #1f2937;
+  --color-muted: #6b7280;
+  --color-border: #e6e6e3;
+
+  /* Estado */
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+}
+
+/* malha do hero (por tema) */
+:root {
+  --grid-line: rgba(92, 110, 90, 0.13);
+}
+
+/* Tema escuro — o "canvas" verde-escuro do site do studio */
+:root.dark {
+  --color-brand: #5c6e5a;
+  --color-brand-bright: #e3b9c2;
+  --color-accent: #aebbab;
+  --color-bg: #141814;
+  --color-card: #1f251f;
+  --color-surface: #262d26;
+  --color-brand-soft: #1f2a1c;
+  --color-ink: #f5f7f4;
+  --color-muted: #a3ada3;
+  --color-border: #343d34;
+  --grid-line: rgba(174, 187, 171, 0.12);
+}

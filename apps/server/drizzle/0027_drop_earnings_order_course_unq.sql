@@ -1,0 +1,24 @@
+-- Migration custom, separada da 0025 DE PROPÓSITO — não junte de volta.
+--
+-- O MySQL faz COMMIT IMPLÍCITO a cada DDL: um arquivo de migration com vários DDL não é
+-- atômico, e o drizzle só grava o hash do arquivo quando o ÚLTIMO statement passa. Este
+-- DROP INDEX é o único do repositório e recai sobre um índice criado lá na 0005 como
+-- CONSTRAINT de tabela, cujo nome real em produção nunca foi conferido — é, de longe, o
+-- statement com mais chance de falhar de todos.
+--
+-- Se ele falhasse dentro da 0025, a cascata seria: os 7 DDL anteriores JÁ commitados, o
+-- hash da 0025 NÃO gravado, a 0026 (backfill do settled_at) nunca executada — todo aluno
+-- que já pagou perderia o certificado no deploy — e, no boot seguinte, a 0025 reprocessada
+-- desde o statement 1, morrendo em "Table 'order_installments' already exists". Esse erro
+-- é engolido pelo database.module.ts ("Erro (não-fatal no boot)"), então o serviço subiria
+-- verde com o schema errado, para sempre.
+--
+-- Sozinho neste arquivo, um DROP INDEX que falha não arrasta nada junto: o backfill da
+-- 0026 já rodou e só esta migration fica por aplicar, com o erro visível no log.
+--
+-- Segunda metade da troca de UNIQUE (a primeira é o ADD CONSTRAINT da 0025, que já
+-- cobre a mesma dupla order_id+course_id e é estritamente mais forte). Fica por
+-- último de propósito: aplicado sozinho e fora de ordem, este DROP pareceria só
+-- remover proteção; a UNIQUE nova já está em vigor antes de a antiga sair, então
+-- a janela sem proteção do `earnings` é zero.
+ALTER TABLE `earnings` DROP INDEX `earnings_order_course_unq`;

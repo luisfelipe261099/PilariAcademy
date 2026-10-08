@@ -1,0 +1,25 @@
+{
+  "name": "@pilari/types",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -b --force",
+    "typecheck": "tsc -b",
+    "dev": "tsc -b -w",
+    "clean": "rimraf dist node_modules/.tmp"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  }
+}

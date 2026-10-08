@@ -1,0 +1,1 @@
+ALTER TABLE `orders` ADD `asaas_payment_link_id` varchar(64);

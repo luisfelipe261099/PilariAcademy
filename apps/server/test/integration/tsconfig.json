@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "composite": false,
+    "incremental": false,
+    "declaration": false,
+    "types": ["node", "jest"],
+    // module/moduleResolution: o build real usa "nodenext", que PRESERVA import() nativo
+    // (Node.js interpreta isso sozinho). O Jest (CJS, sem --experimental-vm-modules) não
+    // sabe executar esse import() nativo e lança "invoked without --experimental-vm-modules".
+    // "commonjs" faz o ts-jest rebaixar o import() dinâmico de bootTestApp para require(),
+    // que o Jest já sabe interceptar — só nesta suíte; o build de produção não é afetado.
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolvePackageJsonExports": false
+  },
+  "include": ["../../src/**/*.ts", "./**/*.ts"],
+  "exclude": []
+}

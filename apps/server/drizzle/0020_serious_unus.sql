@@ -1,0 +1,1 @@
+ALTER TABLE `certificates` MODIFY COLUMN `code` varchar(36) NOT NULL;

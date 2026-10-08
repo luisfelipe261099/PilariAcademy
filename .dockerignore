@@ -1,0 +1,23 @@
+# Nunca copiar para o contexto/imagem
+**/node_modules
+**/dist
+**/build
+**/.turbo
+.turbo
+.git
+.deploytest
+deploy
+**/*.log
+**/coverage
+**/*.tsbuildinfo
+.vscode
+.idea
+
+# Segredos do servidor NÃO entram na imagem (vêm do Secret Manager em runtime)
+apps/server/.env
+apps/server/.env.*
+.env
+.env.*
+
+# IMPORTANTE: o .env do client (VITE_* públicos) PRECISA entrar no build do Vite
+!apps/client/.env

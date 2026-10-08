@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+
+    <style>
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 297mm;
+        height: 210mm;
+      }
+
+      .cert {
+        position: relative;
+        width: 297mm;
+        height: 210mm;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #2f3a2c;
+        overflow: hidden;
+      }
+
+      .cert .bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+      }
+
+      .f {
+        position: absolute;
+      }
+
+      .body {
+        /* centro em 56%, o mesmo do título da arte (a faixa verde ocupa a esquerda) */
+        left: 22%;
+        top: 28%;
+        width: 68%;
+        text-align: center;
+        color: #2f3a2c;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      .body .intro {
+        font-weight: 700;
+      }
+
+      .body .space {
+        height: 28px;
+      }
+
+      .body .name {
+        font-size: 28px;
+        font-weight: 900;
+      }
+
+      /* BLOCO, não inline: como <span> no meio da frase, o nome do curso e o
+       * "com carga horária" ficavam na mesma linha e o curso quebrava no meio da
+       * palavra. Num documento isso fica ilegível. */
+      .body .course {
+        display: block;
+        font-weight: 700;
+        font-size: 24px;
+        margin: 6px 0;
+        line-height: 1.25;
+        /* nome longo quebra equilibrado em vez de deixar uma palavra órfã */
+        text-wrap: balance;
+      }
+
+      .body .line {
+        margin-bottom: 3px;
+      }
+
+      .val {
+        left: 69%;
+        top: 74%;
+        width: 19%;
+        text-align: center;
+        color: #4b5563;
+        line-height: 1.15;
+      }
+
+      .val img {
+        width: 88px;
+        height: 88px;
+      }
+
+      .val .code {
+        font-size: 9px;
+        margin-top: 22px;
+      }
+
+      .val .date {
+        font-size: 8px;
+      }
+
+      .val .url {
+        font-size: 6.5px;
+        word-break: break-all;
+      }
+
+      /*
+       * 2a assinatura: o COORDENADOR do curso. A 1a (Dra. Mylena Sestream) está gravada na ARTE de
+       * fundo e vale para todos os cursos; esta vem do banco e muda por curso.
+       * top 81,5% alinha esta linha com a da Dra. Mylena Sestream, que é fixa na imagem.
+       */
+      .sign {
+        left: 65%;
+        top: 81.5%;
+        width: 18%;
+        text-align: center;
+        color: #2f3a2c;
+      }
+
+      .sign .rule {
+        border-top: 2px solid #2f3a2c;
+        margin-bottom: 4px;
+      }
+
+      /*
+       * Rubrica escaneada. Fica ACIMA da linha e é puxada para dentro dela com margem
+       * negativa, imitando a assinatura fixa da arte — que pode ser gravada com a
+       * caneta cruzando o traço. `height` fixa e `width:auto` preservam a proporção
+       * qualquer que seja o arquivo enviado.
+       */
+      /*
+       * Rubrica escaneada, posicionada por cima da linha da 2a assinatura (que está em
+       * .sign, top 81,5%). `object-fit: contain` + `object-position` no rodapé encaixam
+       * qualquer proporção de arquivo dentro da caixa sem esticar, apoiada no traço.
+       */
+      .rubrica {
+        left: 65%;
+        top: 74.5%;
+        width: 18%;
+        height: 8%;
+        object-fit: contain;
+        object-position: 50% 100%;
+      }
+
+      .sign .who {
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .sign .role {
+        font-size: 13px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="cert">
+      {% if bgDataUri %}
+        <img class="bg" src="{{ bgDataUri }}" alt="" />
+      {% endif %}
+
+      <div class="f body">
+        <div class="line intro">O Studio Pilari certifica que</div>
+
+        <div class="space"></div>
+
+        <div class="line name">{{ studentName }}</div>
+         <div class="space"></div>
+
+        <div class="line">
+          {% if cpf %}CPF sob nº {{ cpf }},{% endif %}
+          concluiu com êxito o curso livre
+        </div>
+
+        <div class="line course">{{ courseTitle }}</div>
+
+        <div class="line">com carga horária de {{ hours }} horas.</div>
+      </div>
+
+
+      <!--
+        Bloco IRMAO do da assinatura, nunca aninhado dentro dele: um condicional dentro do
+        outro depende de o engine do renderizador casar o fechamento certo, e nao vale
+        arriscar isso num documento oficial. Como os dois sao position:absolute, ficarem
+        separados no HTML nao muda nada no layout.
+        Sem sintaxe de template neste comentario: o engine processa o arquivo ANTES do
+        HTML, entao uma marca solta aqui dentro seria interpretada de verdade.
+      -->
+      {% if coordinatorSignatureDataUri %}
+        <img class="f rubrica" src="{{ coordinatorSignatureDataUri }}" alt="" />
+      {% endif %}
+
+      {% if coordinatorName %}
+        <!--
+          Com a 2a assinatura, o bloco de validação cede espaço: encolhe e vai para a
+          direita. Fica DENTRO do condicional de propósito — sem coordenador, o
+          certificado tem que sair pixel a pixel igual ao de hoje.
+        -->
+        <style>
+          .val { left: 84%; top: 73%; width: 14%; }
+          .val img { width: 66px; height: 66px; }
+          .val .code { font-size: 7px; margin-top: 16px; }
+          .val .url { font-size: 5.5px; }
+        </style>
+        <div class="f sign">
+          <div class="rule"></div>
+          <div class="who">{{ coordinatorName }}</div>
+          <div class="role">{{ coordinatorRole }}</div>
+        </div>
+      {% endif %}
+
+      <div class="f val">
+        {% if qrDataUri %}
+          <img src="{{ qrDataUri }}" alt="QR de validação" />
+        {% endif %}
+
+        <div class="code">Validação: {{ code }}</div>
+        <div class="date">Emitido em {{ issuedAtBr }}</div>
+        <div class="url">{{ verifyUrl }}</div>
+      </div>
+    </div>
+  </body>
+</html>

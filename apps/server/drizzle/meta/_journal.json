@@ -1,0 +1,258 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1782234758778,
+      "tag": "0000_luxuriant_timeslip",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1782395774095,
+      "tag": "0001_living_raider",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1782406016253,
+      "tag": "0002_clear_infant_terrible",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1782407472429,
+      "tag": "0003_polite_wind_dancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1782409221167,
+      "tag": "0004_boring_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1782411708802,
+      "tag": "0005_flimsy_franklin_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1782412991086,
+      "tag": "0006_yielding_amphibian",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1782413656493,
+      "tag": "0007_moaning_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1782414255651,
+      "tag": "0008_striped_wendell_rand",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1782417287048,
+      "tag": "0009_sour_mister_fear",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1782481326130,
+      "tag": "0010_boring_lily_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1782484299596,
+      "tag": "0011_supreme_mariko_yashida",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1782843704527,
+      "tag": "0012_fixed_doctor_faustus",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1782845846998,
+      "tag": "0013_mature_union_jack",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1782846424006,
+      "tag": "0014_calm_silver_fox",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1782849265643,
+      "tag": "0015_numerous_tyrannus",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1782907694947,
+      "tag": "0016_skinny_joshua_kane",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1782926718901,
+      "tag": "0017_supreme_piledriver",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1783013168888,
+      "tag": "0018_adorable_purifiers",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1783019708207,
+      "tag": "0019_brave_greymalkin",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1783025411488,
+      "tag": "0020_serious_unus",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1783357209621,
+      "tag": "0021_third_lester",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1783970475957,
+      "tag": "0022_glossy_the_renegades",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1785508225808,
+      "tag": "0023_daily_micromacro",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1785508588178,
+      "tag": "0024_concerned_captain_flint",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1788355831201,
+      "tag": "0025_tidy_micromacro",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1788355864055,
+      "tag": "0026_backfill_settled_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1788382132141,
+      "tag": "0027_drop_earnings_order_course_unq",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1788457741732,
+      "tag": "0028_coordenador_no_certificado",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1788461900834,
+      "tag": "0029_templates_por_curso",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1788461901834,
+      "tag": "0030_template_padrao",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1788463411110,
+      "tag": "0031_assinatura_coordenador",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1788468034337,
+      "tag": "0032_cobranca_pelo_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1788523451080,
+      "tag": "0033_carga_horaria_do_curso",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "5",
+      "when": 1790885892287,
+      "tag": "0034_multi_polo_fundacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1791315738137,
+      "tag": "0035_tutor_de_voz",
+      "breakpoints": true
+    }
+  ]
+}

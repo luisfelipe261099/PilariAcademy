@@ -1,0 +1,1 @@
+ALTER TABLE `orders` ADD `installment_count` int;

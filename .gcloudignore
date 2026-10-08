@@ -1,0 +1,26 @@
+# O que NÃO é enviado ao Cloud Build.
+# (Ao existir, este arquivo substitui o .gitignore — então listamos tudo aqui.
+#  Não usamos #!include:.gitignore de propósito: o .gitignore exclui apps/client/.env,
+#  que PRECISA subir para o build do Vite, pois carrega o config público do Firebase.)
+
+.git
+**/node_modules
+**/dist
+**/build
+**/.turbo
+.turbo
+.deploytest
+deploy
+**/*.log
+**/coverage
+**/*.tsbuildinfo
+.vscode
+.idea
+
+# Segredos do servidor: não sobem (vêm do Secret Manager em runtime).
+# OBS: .gcloudignore usa sintaxe gitignore — um `.env` sem barra casaria em
+# QUALQUER nível (inclusive apps/client/.env). Por isso ancoramos com `/`.
+apps/server/.env
+apps/server/.env.bak
+/.env
+# apps/client/.env.production (público) NÃO é ignorado: é o config do Firebase no build.

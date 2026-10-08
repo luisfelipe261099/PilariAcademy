@@ -1,0 +1,1 @@
+ALTER TABLE `courses` ADD `cover_focus` varchar(20);

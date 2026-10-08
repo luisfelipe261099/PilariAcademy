@@ -1,0 +1,1 @@
+ALTER TABLE `modules` ADD `available_at` timestamp(3);

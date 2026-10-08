@@ -1,0 +1,1 @@
+ALTER TABLE `certificates` ADD `cpf` varchar(14);

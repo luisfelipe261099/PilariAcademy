@@ -1,0 +1,1 @@
+ALTER TABLE `courses` ADD `workload_hours` int;

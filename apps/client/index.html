@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      ;(function () {
+        try {
+          var t = localStorage.getItem('pilari-theme')
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          if (t === 'dark') document.documentElement.classList.add('dark')
+        } catch (e) {}
+      })()
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- App (PWA): o servidor troca nome, cor e ícone pelos do polo do endereço. -->
+    <link rel="manifest" href="/api/tenant/manifest" />
+    <link rel="apple-touch-icon" href="/icons/pilari-apple-180.png" />
+    <meta name="theme-color" content="#7e8f7c" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Studio Pilari" />
+    <meta
+      name="description"
+      content="Cursos online de Pilates e fisioterapia com a Dra. Mylena Sestream, do Studio Pilari. Aprenda no seu ritmo, com certificado de conclusão."
+    />
+    <title>Cursos | Studio Pilari</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
