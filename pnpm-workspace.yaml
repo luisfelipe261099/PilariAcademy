@@ -11,5 +11,7 @@ blockExoticSubdeps: true # bloqueia transitivas de fontes exóticas (git/url)
 
 # Trava transitivos vulneráveis (auditoria de segurança):
 # multer < 2.2.0 tem DoS (GHSA-3p4h-7m6x-2hcm e cleanup incompleto de uploads abortados).
+# proxy-addr < 2.0.8 aceita IP falsificado via IPv6 mapeado de IPv4 (GHSA-jqcg-44mw-7w3h), via express.
 overrides:
   multer: '>=2.2.0'
+  proxy-addr: '>=2.0.8'
