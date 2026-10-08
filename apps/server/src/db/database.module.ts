@@ -10,6 +10,20 @@ import * as schema from './schema'
 import { migrationsPendentes, shouldRunMigrations, ultimaMigrationDoJournal } from './migration-guard'
 import type { Database } from './types'
 
+/**
+ * O banco de produção é TiDB, que não tem lock compartilhado: `SELECT … FOR SHARE` (usado para a exclusão de curso não
+ * correr contra a emissão de certificado) dá erro. Com `tidb_enable_shared_lock_promotion` o FOR SHARE vira FOR UPDATE,
+ * um lock mais forte: a garantia continua. (O `tidb_enable_noop_functions` faria o lock virar nada — não serve.)
+ */
+export function ehTiDB(databaseUrl: string, engine = process.env.DB_ENGINE): boolean {
+  if (engine === 'tidb') return true
+  try {
+    return /(^|\.)tidbcloud\.com$/i.test(new URL(databaseUrl).hostname)
+  } catch {
+    return false
+  }
+}
+
 @Global()
 @Module({
   imports: [ConfigModule],
@@ -22,6 +36,8 @@ import type { Database } from './types'
           throw new Error('DATABASE_URL não configurada')
         }
         const pool = createPool(databaseUrl)
+        // Enfileirado na criação de cada conexão: roda antes de qualquer consulta do app nela.
+        if (ehTiDB(databaseUrl)) pool.on('connection', (conn) => void conn.query('SET SESSION tidb_enable_shared_lock_promotion = ON'))
         return drizzle(pool, { schema, mode: 'default' })
       },
       inject: [ConfigService],
