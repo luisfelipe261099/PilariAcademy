@@ -3,6 +3,7 @@ import type { Response } from 'express'
 import type { Readable } from 'node:stream'
 import { Public } from '../../common/decorators/public.decorator'
 import { FileProxyService } from './file-proxy.service'
+import { dispositionInline } from '../../common/lib/content-disposition'
 
 /**
  * Serve o PDF do anexo pelo domínio do app. @Public() porque <iframe> não manda header de
@@ -28,12 +29,12 @@ export class FileProxyController {
     const pdf = await this.fileProxy.getSignedPdf(id, Number(exp), sig ?? '')
     if (!pdf) throw new NotFoundException('PDF indisponível.')
 
-    const safeName = pdf.fileName.replace(/["\r\n]/g, '')
     // Sempre application/pdf: o service já garante que só chega aqui um PDF de verdade. Cravar o
     // tipo aqui também impede que qualquer regressão futura reflita um content-type do usuário
     // com disposição inline na origem do app (Stored XSS).
     res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader('Content-Disposition', `inline; filename="${safeName}"`)
+    // Nome do cadastro pode ter acento ou travessão: o par filename/filename* evita o ERR_INVALID_CHAR do Node (500).
+    res.setHeader('Content-Disposition', dispositionInline(pdf.fileName))
     res.setHeader('Cache-Control', 'private, max-age=3600')
     this.transmitir(id, pdf.stream, res)
   }

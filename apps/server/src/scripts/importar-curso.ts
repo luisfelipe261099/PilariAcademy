@@ -5,8 +5,9 @@
  *   pnpm --filter server exec tsx src/scripts/importar-curso.ts <pasta> --instrutor=<email>
  *        [--base-url=<url>] [--publicar] [--substituir] [--producao]
  *
- * Arquivos (capa e anexos): com GCS_BUCKET, sobem para `cursos/<id>/...` no bucket; sem bucket, viram
- * `<base-url>/<caminho no pacote>` (ensaio local: sirva a pasta com `python3 -m http.server`).
+ * Arquivos (capa e anexos): com Vercel Blob (BLOB_READ_WRITE_TOKEN) ou GCS_BUCKET, sobem para `cursos/<id>/...` no
+ * armazenamento privado; sem nenhum dos dois, viram `<base-url>/<caminho no pacote>` (ensaio local: sirva a pasta com
+ * `python3 -m http.server`).
  * Por segurança só roda contra MySQL em 127.0.0.1; `--producao` libera outro host, de propósito.
  *
  * `curso.json`: { slug, title, subtitle, description, category, priceInCents, workloadHours, cover,
@@ -98,8 +99,9 @@ async function main(): Promise<void> {
     process.exit(1)
   }
   const bucket = process.env.GCS_BUCKET
-  if (!bucket && !baseUrl) {
-    console.error('Sem GCS_BUCKET: informe --base-url para os arquivos (ex.: http://127.0.0.1:5181).')
+  const blob = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)
+  if (!blob && !bucket && !baseUrl) {
+    console.error('Sem Vercel Blob nem GCS_BUCKET: informe --base-url para os arquivos (ex.: http://127.0.0.1:5181).')
     process.exit(1)
   }
 
@@ -122,14 +124,21 @@ async function main(): Promise<void> {
   const courseId = existente?.id ?? randomUUID()
 
   // Arquivo do pacote → URL/caminho gravado no banco.
-  const { getStorage } = bucket ? await import('firebase-admin/storage') : { getStorage: null }
-  if (bucket) {
+  const { getStorage } = bucket && !blob ? await import('firebase-admin/storage') : { getStorage: null }
+  const { put } = blob ? await import('@vercel/blob') : { put: null }
+  if (bucket && !blob) {
     const { initializeApp, getApps, applicationDefault } = await import('firebase-admin/app')
     if (!getApps().length) initializeApp({ credential: applicationDefault() })
   }
+  const tipoPorExtensao: Record<string, string> = { '.pdf': 'application/pdf', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
   const publicar = async (arquivo: string, pastaDestino: string): Promise<string> => {
-    if (!bucket || !getStorage) return `${baseUrl}/${arquivo.split('/').map(encodeURIComponent).join('/')}`
     const destino = `cursos/${courseId}/${pastaDestino}/${randomUUID()}${extname(arquivo)}`
+    if (put) {
+      const contentType = tipoPorExtensao[extname(arquivo).toLowerCase()] ?? 'application/octet-stream'
+      await put(destino, readFileSync(join(pasta, arquivo)), { access: 'private', contentType, addRandomSuffix: false, allowOverwrite: true })
+      return destino
+    }
+    if (!bucket || !getStorage) return `${baseUrl}/${arquivo.split('/').map(encodeURIComponent).join('/')}`
     await getStorage().bucket(bucket).upload(join(pasta, arquivo), { destination: destino })
     return destino
   }
