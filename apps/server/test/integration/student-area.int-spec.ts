@@ -91,7 +91,7 @@ describe('área do aluno por polo', () => {
       const r = await app.http().get(url).set('Host', w.a.host).buffer(true).parse(binario)
       expect(r.status).toBe(200)
       expect(r.headers['content-type']).toBe('application/pdf')
-      expect(r.headers['content-disposition']).toBe('inline; filename="Apostila Excel.pdf"')
+      expect(r.headers['content-disposition']).toBe(`inline; filename="Apostila Excel.pdf"; filename*=UTF-8''Apostila%20Excel.pdf`)
       expect(Buffer.compare(r.body as Buffer, pdfGrande)).toBe(0)
       expect(app.fakes.gcs.headReads).toContain(caminho)
       expect(app.fakes.gcs.streams).toContain(caminho)
