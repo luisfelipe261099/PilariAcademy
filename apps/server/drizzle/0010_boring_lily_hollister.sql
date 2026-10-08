@@ -4,7 +4,7 @@ CREATE TABLE `course_announcements` (
 	`author_id` varchar(128) NOT NULL,
 	`title` varchar(255) NOT NULL,
 	`body` text NOT NULL,
-	`created_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `course_announcements_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
@@ -14,8 +14,8 @@ CREATE TABLE `course_reviews` (
 	`user_id` varchar(128) NOT NULL,
 	`rating` int NOT NULL,
 	`comment` text,
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `course_reviews_id` PRIMARY KEY(`id`),
 	CONSTRAINT `course_reviews_course_user_unq` UNIQUE(`course_id`,`user_id`)
 );
@@ -27,7 +27,7 @@ CREATE TABLE `lesson_notes` (
 	`lesson_id` varchar(36) NOT NULL,
 	`at_sec` int NOT NULL DEFAULT 0,
 	`body` text NOT NULL,
-	`created_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `lesson_notes_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint

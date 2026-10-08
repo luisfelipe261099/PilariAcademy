@@ -19,3 +19,10 @@ coverage
 tmp/
 certificate-positioner.html
 apps/server/public/
+.vercel
+.env*
+# exceções versionadas de propósito: exemplos e a config web pública do Firebase
+!.env.example
+!apps/client/.env.example
+!apps/server/.env.example
+!apps/client/.env.production

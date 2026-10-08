@@ -59,6 +59,7 @@ async function bootstrap() {
             'https://identitytoolkit.googleapis.com', // Firebase Auth (login/cadastro)
             'https://securetoken.googleapis.com', // refresh do ID token
             'https://storage.googleapis.com', // upload direto ao GCS via signed URL
+            'https://vercel.com', // upload direto ao Vercel Blob via presigned URL (API de controle)
           ],
           // Aulas do YouTube (iframe) e PDFs da classroom (mesma origem, /api/files/...).
           'frame-src': ["'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com'],

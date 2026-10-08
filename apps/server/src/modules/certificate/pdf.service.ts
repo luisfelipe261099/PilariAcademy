@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { findTemplateNetworkViolation } from '../../common/lib/content-safety'
+import { encontrarChromium, imprimirPdf, renderizarTemplate } from './local-pdf'
 
 export interface CertData {
   studentName: string
@@ -50,7 +51,10 @@ function sanitizeText(s: string): string {
     .trim()
 }
 
-/** Gera o PDF do certificado via pdfSynth (HTML → Chrome → PDF/A). Sem navegador local. */
+/**
+ * Gera o PDF do certificado: pelo pdfSynth (HTML → Chrome → PDF/A) quando PDF_SYNTH_URL está definido; senão, pelo
+ * Chromium do próprio container (local-pdf.ts).
+ */
 @Injectable()
 export class PdfService {
   private readonly logger = new Logger(PdfService.name)
@@ -132,6 +136,7 @@ export class PdfService {
     if (violation) {
       throw new Error(`Template do certificado reprovado no sandbox de rede: ${violation}`)
     }
+    if (!this.config.get<string>('PDF_SYNTH_URL')) return this.gerarLocal(html, d)
     const body = JSON.stringify({
       template_html: html,
       data: this.buildData(d),
@@ -152,6 +157,15 @@ export class PdfService {
       }
     }
     throw new Error(`Falha ao gerar PDF no pdfSynth: ${lastErr?.message ?? 'desconhecido'}`)
+  }
+
+  /** Renderização no Chromium do container: aplica os dados ao template e imprime. */
+  private async gerarLocal(html: string, d: CertData): Promise<Buffer> {
+    const executavel = encontrarChromium(this.config.get<string>('CHROMIUM_PATH'))
+    if (!executavel) throw new Error('Sem renderizador de PDF: defina PDF_SYNTH_URL ou instale o Chromium (CHROMIUM_PATH).')
+    const buf = await imprimirPdf(renderizarTemplate(html, this.buildData(d)), executavel, TIMEOUT_MS)
+    if (buf.subarray(0, 5).toString() !== '%PDF-' || buf.length < 1024) throw new Error('O Chromium não gerou um PDF válido')
+    return buf
   }
 
   private async renderOnce(body: string, auth: Record<string, string>): Promise<Buffer> {

@@ -2,7 +2,7 @@ CREATE TABLE `tenant_domains` (
 	`host` varchar(253) NOT NULL,
 	`tenant_id` varchar(36) NOT NULL,
 	`is_primary` boolean NOT NULL DEFAULT false,
-	`created_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `tenant_domains_host` PRIMARY KEY(`host`)
 );
 --> statement-breakpoint
@@ -10,8 +10,8 @@ CREATE TABLE `tenant_members` (
 	`tenant_id` varchar(36) NOT NULL,
 	`user_uid` varchar(128) NOT NULL,
 	`roles` json NOT NULL,
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `tenant_members_pk` PRIMARY KEY(`tenant_id`,`user_uid`)
 );
 --> statement-breakpoint
@@ -22,8 +22,8 @@ CREATE TABLE `tenants` (
 	`status` varchar(16) NOT NULL DEFAULT 'active',
 	`is_matriz` boolean NOT NULL DEFAULT false,
 	`branding` json NOT NULL,
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `tenants_id` PRIMARY KEY(`id`),
 	CONSTRAINT `tenants_slug_unique` UNIQUE(`slug`)
 );

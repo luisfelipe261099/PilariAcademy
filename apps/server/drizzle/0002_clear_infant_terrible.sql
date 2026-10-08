@@ -5,8 +5,8 @@ CREATE TABLE `enrollments` (
 	`status` varchar(16) NOT NULL DEFAULT 'pending',
 	`source` varchar(16) NOT NULL,
 	`activated_at` timestamp(3),
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `enrollments_id` PRIMARY KEY(`id`),
 	CONSTRAINT `enrollments_user_course_unq` UNIQUE(`user_id`,`course_id`)
 );
@@ -22,8 +22,8 @@ CREATE TABLE `payments` (
 	`payment_url` varchar(1024),
 	`due_date` varchar(10),
 	`paid_at` timestamp(3),
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `payments_id` PRIMARY KEY(`id`),
 	CONSTRAINT `payments_asaas_charge_id_unique` UNIQUE(`asaas_charge_id`)
 );

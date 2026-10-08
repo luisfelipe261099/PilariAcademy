@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { getStorage } from 'firebase-admin/storage'
 import type { Readable } from 'node:stream'
+import { BlobStorage, blobConfigurado } from './blob-storage'
+import { lerComTeto, primeirosBytes } from './stream-limits'
 
 /** Teto das imagens servidas ou embutidas pelos proxies (capa, marca do polo, rubrica do coordenador). */
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024
@@ -19,76 +21,18 @@ export interface ObjectStat {
 }
 
 /**
- * Lê o stream inteiro para a memória contando os bytes que de fato chegam. Passou de `teto`: destrói o stream (o download
- * é abortado, nada mais chega) e devolve `null`. Falha do stream rejeita.
+ * Armazenamento dos arquivos (vídeos, PDFs, capas, marcas, certificados). Com um store do Vercel Blob conectado
+ * (BLOB_READ_WRITE_TOKEN ou BLOB_STORE_ID), usa o Blob privado; senão, o bucket do GCS (GCS_BUCKET) pelo firebase-admin.
+ * O nome ficou do tempo em que só havia GCS: o contrato é o mesmo nos dois.
  */
-function lerComTeto(fonte: Readable, teto: number | undefined): Promise<Buffer | null> {
-  return new Promise((resolve, reject) => {
-    const pedacos: Buffer[] = []
-    let total = 0
-    let acabou = false
-    fonte.on('data', (pedaco: Buffer) => {
-      if (acabou) return
-      total += pedaco.length
-      if (teto != null && total > teto) {
-        acabou = true
-        fonte.destroy()
-        resolve(null)
-        return
-      }
-      pedacos.push(pedaco)
-    })
-    fonte.on('end', () => {
-      if (acabou) return
-      acabou = true
-      resolve(Buffer.concat(pedacos, total))
-    })
-    // `on`, não `once`: um segundo erro depois do destroy, sem ouvinte, derrubaria o processo.
-    fonte.on('error', (err) => {
-      if (acabou) return
-      acabou = true
-      reject(err)
-    })
-  })
-}
-
-/** Os primeiros `n` bytes do stream: para assim que os tiver (destrói o stream) e nunca acumula mais que isso. */
-function primeirosBytes(fonte: Readable, n: number): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const pedacos: Buffer[] = []
-    let total = 0
-    let acabou = false
-    const entregar = () => {
-      acabou = true
-      const tudo = Buffer.concat(pedacos, total)
-      resolve(tudo.subarray(0, Math.min(n, tudo.length)))
-    }
-    fonte.on('data', (pedaco: Buffer) => {
-      if (acabou) return
-      pedacos.push(pedaco.subarray(0, n - total))
-      total += Math.min(pedaco.length, n - total)
-      if (total >= n) {
-        fonte.destroy()
-        entregar()
-      }
-    })
-    fonte.on('end', () => {
-      if (!acabou) entregar()
-    })
-    fonte.on('error', (err) => {
-      if (acabou) return
-      acabou = true
-      reject(err)
-    })
-  })
-}
-
-/** Gera URLs assinadas (leitura, temporárias) para objetos do GCS. Reusa o firebase-admin. */
 @Injectable()
 export class GcsService {
   private readonly logger = new Logger(GcsService.name)
+  private readonly blob: BlobStorage | null
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: ConfigService) {
+    this.blob = blobConfigurado(config) ? new BlobStorage(this.logger) : null
+  }
 
   /**
    * URL assinada de leitura para o objeto. `null` se caminho vazio, bucket não configurado
@@ -97,6 +41,7 @@ export class GcsService {
    */
   async signedUrl(objectPath: string | null | undefined, ttlSeconds = 7200): Promise<string | null> {
     if (!objectPath) return null
+    if (this.blob) return this.blob.signedUrl(objectPath, ttlSeconds)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return null
     try {
@@ -120,6 +65,7 @@ export class GcsService {
   /** Geração, tamanho guardado e tipo do objeto. `null` se vazio/sem bucket/não existe. */
   async statObject(objectPath: string | null | undefined): Promise<ObjectStat | null> {
     if (!objectPath) return null
+    if (this.blob) return this.blob.statObject(objectPath)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return null
     try {
@@ -148,6 +94,7 @@ export class GcsService {
     opts: { maxBytes?: number } = {}
   ): Promise<{ buffer: Buffer; contentType: string } | null> {
     if (!objectPath) return null
+    if (this.blob) return this.blob.readObject(objectPath, opts)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return null
     try {
@@ -176,6 +123,7 @@ export class GcsService {
    */
   async readHead(objectPath: string | null | undefined, bytes: number, opts: { generation?: ObjectGeneration } = {}): Promise<Buffer | null> {
     if (!objectPath) return null
+    if (this.blob) return this.blob.readHead(objectPath, bytes, opts)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return null
     try {
@@ -192,6 +140,7 @@ export class GcsService {
    */
   openReadStream(objectPath: string | null | undefined, opts: { generation?: ObjectGeneration } = {}): Readable | null {
     if (!objectPath) return null
+    if (this.blob) return this.blob.openReadStream(objectPath, opts)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return null
     return this.arquivo(bucket, objectPath, opts.generation).createReadStream()
@@ -210,6 +159,7 @@ export class GcsService {
 
   /** Salva um buffer no GCS. `true` se salvou; `false` se sem bucket/falha (não lança). */
   async saveObject(objectPath: string, buffer: Buffer, contentType: string): Promise<boolean> {
+    if (this.blob) return this.blob.saveObject(objectPath, buffer, contentType)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return false
     try {
@@ -223,6 +173,7 @@ export class GcsService {
 
   /** Apaga um objeto do GCS. `true` se apagou (ou já não existia); `false` se sem bucket/falha. */
   async deleteObject(objectPath: string): Promise<boolean> {
+    if (this.blob) return this.blob.deleteObject(objectPath)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return false
     try {
@@ -237,6 +188,7 @@ export class GcsService {
   /** URL assinada de upload (PUT). `null` se caminho vazio, bucket não configurado ou falha. */
   async signedUploadUrl(objectPath: string, contentType: string, ttlSeconds = 900): Promise<string | null> {
     if (!objectPath) return null
+    if (this.blob) return this.blob.signedUploadUrl(objectPath, contentType, ttlSeconds)
     const bucket = this.config.get<string>('GCS_BUCKET')
     if (!bucket) return null
     try {

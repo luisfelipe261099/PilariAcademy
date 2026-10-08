@@ -4,8 +4,8 @@ CREATE TABLE `lesson_progress` (
 	`lesson_id` varchar(36) NOT NULL,
 	`completed` boolean NOT NULL DEFAULT false,
 	`completed_at` timestamp(3),
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `lesson_progress_id` PRIMARY KEY(`id`),
 	CONSTRAINT `lesson_progress_user_lesson_unq` UNIQUE(`user_id`,`lesson_id`)
 );

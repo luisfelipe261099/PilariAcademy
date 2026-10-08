@@ -17,7 +17,16 @@ export interface TestDatabase {
   drop(): Promise<void>
 }
 
+/**
+ * Opt-in explícito para rodar a integração contra outro servidor MySQL-compatível (ex.: TiDB, o banco de produção):
+ * INT_DB_SERVER_URL=mysql://usuario:senha@host:4000 (sem banco). Cada suíte cria e apaga o próprio banco `t_…` nele.
+ */
+const servidorExterno = (): string | undefined => process.env.INT_DB_SERVER_URL?.replace(/\/+$/, '')
+const tls = (): string => (servidorExterno() ? '?ssl={"rejectUnauthorized":true}' : '')
+
 function serverUrl(): string {
+  const externo = servidorExterno()
+  if (externo) return externo
   const port = process.env.MYSQL_TEST_PORT
   if (!port) throw new Error('MYSQL_TEST_PORT ausente: rode pelo jest de integração (globalSetup).')
   return `mysql://${process.env.MYSQL_TEST_USER ?? 'root'}@127.0.0.1:${port}`
@@ -25,6 +34,7 @@ function serverUrl(): string {
 
 /** Recusa qualquer banco que não seja o MySQL descartável local. */
 export function assertLocal(url: string): void {
+  if (servidorExterno() && url.startsWith(servidorExterno()!)) return
   const host = new URL(url).hostname
   if (host !== '127.0.0.1') throw new Error(`Teste de integração recusou banco não local: ${host}`)
 }
@@ -32,10 +42,10 @@ export function assertLocal(url: string): void {
 /** Cria um banco vazio e exclusivo no MySQL de teste. Nunca toca produção. */
 export async function createTestDatabase(): Promise<TestDatabase> {
   const name = `t_${randomBytes(6).toString('hex')}`
-  const admin = await createConnection(serverUrl())
+  const admin = await createConnection(serverUrl() + tls())
   await admin.query(`CREATE DATABASE \`${name}\``)
   await admin.end()
-  const url = `${serverUrl()}/${name}`
+  const url = `${serverUrl()}/${name}${tls()}`
   assertLocal(url)
   const pool = createPool(url)
   const db = drizzle(pool, { schema, mode: 'default' })
@@ -46,10 +56,25 @@ export async function createTestDatabase(): Promise<TestDatabase> {
     db,
     drop: async () => {
       await pool.end()
-      const c = await createConnection(serverUrl())
+      const c = await createConnection(serverUrl() + tls())
       await c.query(`DROP DATABASE IF EXISTS \`${name}\``)
       await c.end()
     },
+  }
+}
+
+/**
+ * Quantas transações estão esperando lock agora (os testes de corrida esperam a segunda transação travar antes de soltar a
+ * primeira). MySQL: `information_schema.innodb_trx`; TiDB, que não tem essa tabela: `information_schema.DATA_LOCK_WAITS`.
+ */
+export async function esperasDeLock(pool: Pool): Promise<number> {
+  try {
+    const [linhas] = await pool.query("SELECT COUNT(*) AS n FROM information_schema.innodb_trx WHERE trx_state = 'LOCK WAIT'")
+    return Number((linhas as Array<{ n: number }>)[0].n)
+  } catch (err) {
+    if ((err as { code?: string }).code !== 'ER_NO_SUCH_TABLE') throw err
+    const [linhas] = await pool.query('SELECT COUNT(*) AS n FROM information_schema.DATA_LOCK_WAITS')
+    return Number((linhas as Array<{ n: number }>)[0].n)
   }
 }
 

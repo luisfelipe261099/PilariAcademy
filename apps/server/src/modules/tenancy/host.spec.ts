@@ -48,6 +48,12 @@ describe('isMatrizFallbackHost', () => {
   it('URL padrão do Cloud Run cai na matriz', () => {
     expect(isMatrizFallbackHost('pilari-academy-abc123xyz-uc.a.run.app', PROD)).toBe(true)
   })
+  it('URL padrão da Vercel (produção, branch e deploy) cai na matriz', () => {
+    expect(isMatrizFallbackHost('pilariacademy-luis-machados-projects-ffb7a91f.vercel.app', PROD)).toBe(true)
+    expect(isMatrizFallbackHost('pilariacademy-iozgbr864-luis-machados-projects-ffb7a91f.vercel.app', PROD)).toBe(true)
+    expect(isMatrizFallbackHost('.vercel.app', PROD)).toBe(false)
+    expect(isMatrizFallbackHost('vercel.app', PROD)).toBe(false)
+  })
   it('localhost cai na matriz só fora de produção', () => {
     expect(isMatrizFallbackHost('localhost', DEV)).toBe(true)
     expect(isMatrizFallbackHost('127.0.0.1', DEV)).toBe(true)
@@ -67,6 +73,7 @@ describe('isReservedHost', () => {
     '127.0.0.1', '0.0.0.0', '192.168.0.10', '8.8.8.8', '10.1',
     '[::1]', '[2001:db8::1]',
     'pilari-academy-abc-uc.a.run.app', 'x.run.app', 'run.app',
+    'pilariacademy.vercel.app', 'vercel.app',
     'localhost', 'x.localhost', 'a.b.localhost',
     'test', 'polo.test', 'a.b.test',
   ])('reserva %s', (host) => {
@@ -76,7 +83,7 @@ describe('isReservedHost', () => {
 
   it.each([
     'cursos.poloa.com.br', 'poloa.com', 'latest.com', 'localhost.com.br', 'meu.testes.org', 'app.run.app.br',
-    'xrun.app', '1.2.3.com', 'polo-a.cursos.studiopilari.com.br',
+    'xrun.app', '1.2.3.com', 'polo-a.cursos.studiopilari.com.br', 'meuvercel.app.br', 'xvercel.app',
   ])('não reserva %s', (host) => {
     expect(isReservedHost(host, PROD)).toBe(false)
     expect(isReservedHost(host, DEV)).toBe(false)

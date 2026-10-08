@@ -2,10 +2,10 @@
 import { UnauthorizedException } from '@nestjs/common'
 import { WebhookController } from './webhook.controller'
 
-function make(token = 'secret', reconcileToken?: string) {
+function make(token = 'secret', reconcileToken?: string, cronSecret?: string) {
   const config = {
     get: (k: string) =>
-      k === 'ASAAS_WEBHOOK_TOKEN' ? token : k === 'RECONCILE_TOKEN' ? reconcileToken : undefined,
+      k === 'ASAAS_WEBHOOK_TOKEN' ? token : k === 'RECONCILE_TOKEN' ? reconcileToken : k === 'CRON_SECRET' ? cronSecret : undefined,
   }
   const webhookService = {
     handleEvent: jest.fn(async () => undefined),
@@ -72,6 +72,29 @@ describe('WebhookController', () => {
       const { controller, webhookService } = make('secret', undefined)
       await expect(controller.reconcile('qualquer')).rejects.toBeInstanceOf(UnauthorizedException)
       await expect(controller.reconcile('')).rejects.toBeInstanceOf(UnauthorizedException)
+      expect(webhookService.reconcilePending).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('gatilho do Cron da Vercel (GET com Bearer CRON_SECRET)', () => {
+    it('Bearer correto → reconcilia', async () => {
+      const { controller, webhookService } = make('secret', undefined, 'segredo-do-cron')
+      const r = await controller.reconcileCron('Bearer segredo-do-cron')
+      expect(webhookService.reconcilePending).toHaveBeenCalled()
+      expect(r.reconciled).toBe(1)
+    })
+
+    it('Bearer errado, sem Bearer ou o token do Scheduler no lugar → 401 e NÃO reconcilia', async () => {
+      const { controller, webhookService } = make('secret', 'cron-token', 'segredo-do-cron')
+      for (const h of ['Bearer errado', 'segredo-do-cron', 'Bearer cron-token', undefined]) {
+        await expect(controller.reconcileCron(h)).rejects.toBeInstanceOf(UnauthorizedException)
+      }
+      expect(webhookService.reconcilePending).not.toHaveBeenCalled()
+    })
+
+    it('CRON_SECRET não configurado → 401 (fecha por padrão)', async () => {
+      const { controller, webhookService } = make('secret', 'cron-token', undefined)
+      await expect(controller.reconcileCron('Bearer ')).rejects.toBeInstanceOf(UnauthorizedException)
       expect(webhookService.reconcilePending).not.toHaveBeenCalled()
     })
   })

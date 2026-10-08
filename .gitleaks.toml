@@ -1,0 +1,7 @@
+# Gitleaks: regras padrão + uma exceção documentada.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Config web do Firebase (apps/client/.env.production): a chave AIza... é pública por design, vai no bundle do site. Segredos de verdade (chave de serviço, banco, Asaas, Blob) ficam só nas variáveis da Vercel."
+paths = ['''^apps/client/\.env\.production$''']

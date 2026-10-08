@@ -8,8 +8,8 @@ CREATE TABLE `order_installments` (
 	`status` varchar(16) NOT NULL DEFAULT 'pending',
 	`due_date` varchar(10),
 	`paid_at` timestamp(3),
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `order_installments_id` PRIMARY KEY(`id`),
 	CONSTRAINT `order_installments_asaas_charge_id_unique` UNIQUE(`asaas_charge_id`)
 );

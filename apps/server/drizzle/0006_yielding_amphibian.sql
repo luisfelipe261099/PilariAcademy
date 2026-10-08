@@ -6,7 +6,7 @@ CREATE TABLE `audit_logs` (
 	`summary` varchar(500) NOT NULL,
 	`target_type` varchar(40),
 	`target_id` varchar(64),
-	`created_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `audit_logs_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint

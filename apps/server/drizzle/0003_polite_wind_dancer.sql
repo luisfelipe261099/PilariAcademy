@@ -7,8 +7,8 @@ CREATE TABLE `coupons` (
 	`max_uses` int,
 	`used_count` int NOT NULL DEFAULT 0,
 	`active` boolean NOT NULL DEFAULT true,
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `coupons_id` PRIMARY KEY(`id`),
 	CONSTRAINT `coupons_code_unique` UNIQUE(`code`)
 );
@@ -27,8 +27,8 @@ CREATE TABLE `orders` (
 	`payment_url` varchar(1024),
 	`due_date` varchar(10),
 	`paid_at` timestamp(3),
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `orders_id` PRIMARY KEY(`id`),
 	CONSTRAINT `orders_asaas_charge_id_unique` UNIQUE(`asaas_charge_id`)
 );

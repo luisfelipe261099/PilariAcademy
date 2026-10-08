@@ -34,11 +34,15 @@ export function slugFromHost(host: string, cfg: HostConfig): string | null {
   return null
 }
 
-/** Hosts que caem na matriz sem cadastro: URL padrão do Cloud Run e, fora de produção, localhost. */
+/** Domínios padrão das plataformas de hospedagem (Cloud Run e Vercel): o endereço gerado do deploy é a matriz. */
+const DOMINIOS_DE_PLATAFORMA = ['run.app', 'vercel.app'] as const
+
+/** Hosts que caem na matriz sem cadastro: URL padrão do Cloud Run ou da Vercel e, fora de produção, localhost. */
 export function isMatrizFallbackHost(host: string, cfg: HostConfig): boolean {
-  if (host.endsWith('.run.app')) {
+  for (const dominio of DOMINIOS_DE_PLATAFORMA) {
+    if (!host.endsWith(`.${dominio}`)) continue
     // Defesa extra: exige rótulo não vazio antes do sufixo, mesmo se o host não vier normalizado.
-    const rotulo = host.slice(0, -'.run.app'.length)
+    const rotulo = host.slice(0, -(dominio.length + 1))
     return rotulo.length > 0 && !rotulo.endsWith('.')
   }
   return !cfg.isProd && (host === 'localhost' || host === '127.0.0.1' || host === '[::1]')
@@ -48,14 +52,14 @@ export function isMatrizFallbackHost(host: string, cfg: HostConfig): boolean {
  * Hosts que a resolução do polo trata de forma especial (`slugFromHost` e `isMatrizFallbackHost`) e que, por isso,
  * nunca podem ser cadastrados como domínio próprio de um polo: o domínio cadastrado vence o fallback, então registrar
  * a URL padrão do Cloud Run tiraria a matriz do ar nesse endereço, e um IP ou um nome de dev tomaria o lugar do
- * fallback local. São eles: literais de IP, `*.run.app`, `localhost`, `*.localhost`, `*.test` e, fora de produção,
+ * fallback local. São eles: literais de IP, `*.run.app`, `*.vercel.app`, `localhost`, `*.localhost`, `*.test` e, fora de produção,
  * os sufixos de dev configurados. Recebe o host já normalizado (`normalizeHost`).
  */
 export function isReservedHost(host: string, cfg: HostConfig): boolean {
   if (host.startsWith('[')) return true // IPv6 literal
   // IPv4 literal: o último rótulo de um nome de domínio nunca é só dígitos (a IANA não tem TLD numérico).
   if (/(^|\.)\d+$/.test(host)) return true
-  if (host === 'run.app' || host.endsWith('.run.app')) return true
+  if (DOMINIOS_DE_PLATAFORMA.some((d) => host === d || host.endsWith(`.${d}`))) return true
   // localhost e test são reservados pela IETF (RFC 2606 e 6761) e nunca resolvem na internet, em qualquer ambiente.
   const sufixosDev = ['localhost', 'test', ...(cfg.isProd ? [] : cfg.devSuffixes)]
   return sufixosDev.some((s) => host === s || host.endsWith(`.${s}`))

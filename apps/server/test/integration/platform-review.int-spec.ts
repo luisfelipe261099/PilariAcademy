@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { lessons } from '../../src/db/schema'
 import { PlatformReviewService } from '../../src/modules/platform/platform-review.service'
 import { bootTestApp, type TestApp } from './helpers/app'
-import { createTestDatabase, type TestDatabase } from './helpers/db'
+import { createTestDatabase, esperasDeLock, type TestDatabase } from './helpers/db'
 import { bearer, seedCourse, seedTwoPolos, type TwoPolos } from './helpers/seed'
 import { eventually } from './helpers/wait'
 
@@ -503,7 +503,7 @@ describe('console da plataforma: aprovação de cursos', () => {
           await outra.query('SELECT id FROM courses WHERE id = ? FOR UPDATE', [c.id])
           const resposta = decidir('approve', c.id, { fingerprint: vista }).then((r) => r)
           await eventually(
-            async () => Number(((await t.pool.query("SELECT COUNT(*) AS n FROM information_schema.innodb_trx WHERE trx_state = 'LOCK WAIT'"))[0] as Array<{ n: number }>)[0].n),
+            async () => esperasDeLock(t.pool),
             (n) => n > 0,
             10_000 // em máquina carregada a requisição pode demorar a chegar na trava
           )

@@ -2,7 +2,7 @@ import { randomBytes, randomUUID } from 'node:crypto'
 import type { CourseStatus } from '@pilari/types'
 import { lessonAttachments, lessons, modules, quizQuestions } from '../../src/db/schema'
 import { bootTestApp, type TestApp } from './helpers/app'
-import { createTestDatabase, type TestDatabase } from './helpers/db'
+import { createTestDatabase, esperasDeLock, type TestDatabase } from './helpers/db'
 import { bearer, seedCategory, seedCourse, seedEnrollment, seedMember, seedTwoPolos, seedUser, type TwoPolos } from './helpers/seed'
 import { eventually } from './helpers/wait'
 
@@ -382,7 +382,7 @@ describe('autoria por polo', () => {
         const resposta = excluir(w.a.host, w.u.teacherA, c.id).then((r) => r)
         // a exclusão fica esperando a trava da linha
         await eventually(
-          async () => Number(((await t.pool.query("SELECT COUNT(*) AS n FROM information_schema.innodb_trx WHERE trx_state = 'LOCK WAIT'"))[0] as Array<{ n: number }>)[0].n),
+          async () => esperasDeLock(t.pool),
           (n) => n > 0,
           10_000 // em máquina carregada a requisição pode demorar a chegar na trava
         )

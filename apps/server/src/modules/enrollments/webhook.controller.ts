@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Headers, HttpCode, Logger, Post, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, Headers, HttpCode, Logger, Post, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { timingSafeEqual } from 'node:crypto'
 import { Public } from '../../common/decorators/public.decorator'
@@ -71,6 +71,24 @@ export class WebhookController {
     if (!secureCompare(token, this.config.get<string>('RECONCILE_TOKEN'))) {
       throw new UnauthorizedException('Token de reconciliação inválido.')
     }
+    return this.reconciliar()
+  }
+
+  /**
+   * O mesmo gatilho para o Cron da Vercel, que chama com GET e `Authorization: Bearer <CRON_SECRET>`. Fecha por padrão
+   * como o POST: sem CRON_SECRET configurado, 401.
+   */
+  @Public()
+  @Get('reconcile')
+  async reconcileCron(@Headers('authorization') authorization: string | undefined): Promise<AsaasReconcileResult> {
+    const token = authorization?.startsWith('Bearer ') ? authorization.slice('Bearer '.length) : undefined
+    if (!secureCompare(token, this.config.get<string>('CRON_SECRET'))) {
+      throw new UnauthorizedException('Token do cron inválido.')
+    }
+    return this.reconciliar()
+  }
+
+  private async reconciliar(): Promise<AsaasReconcileResult> {
     const result = await this.webhookService.reconcilePending()
     this.logger.log(`Reconcile agendado: ${JSON.stringify(result)}`)
     // actorUid nulo = não foi humano. Sem esta trilha, uma liberação feita pelo job

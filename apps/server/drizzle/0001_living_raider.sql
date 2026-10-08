@@ -2,8 +2,8 @@ CREATE TABLE `categories` (
 	`id` varchar(36) NOT NULL,
 	`name` varchar(120) NOT NULL,
 	`slug` varchar(140) NOT NULL,
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `categories_id` PRIMARY KEY(`id`),
 	CONSTRAINT `categories_slug_unique` UNIQUE(`slug`)
 );
@@ -22,8 +22,8 @@ CREATE TABLE `courses` (
 	`status` varchar(16) NOT NULL DEFAULT 'draft',
 	`external_url` varchar(1024),
 	`published_at` timestamp(3),
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `courses_id` PRIMARY KEY(`id`),
 	CONSTRAINT `courses_slug_unique` UNIQUE(`slug`)
 );
@@ -34,7 +34,7 @@ CREATE TABLE `lesson_attachments` (
 	`file_name` varchar(255) NOT NULL,
 	`file_url` varchar(1024) NOT NULL,
 	`size_bytes` int,
-	`created_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `lesson_attachments_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
@@ -47,8 +47,8 @@ CREATE TABLE `lessons` (
 	`duration_sec` int NOT NULL DEFAULT 0,
 	`sort_order` int NOT NULL DEFAULT 0,
 	`is_free_preview` boolean NOT NULL DEFAULT false,
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `lessons_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
@@ -57,8 +57,8 @@ CREATE TABLE `modules` (
 	`course_id` varchar(36) NOT NULL,
 	`title` varchar(200) NOT NULL,
 	`sort_order` int NOT NULL DEFAULT 0,
-	`created_at` timestamp(3) DEFAULT (now()),
-	`updated_at` timestamp(3) DEFAULT (now()),
+	`created_at` timestamp(3) DEFAULT (now(3)),
+	`updated_at` timestamp(3) DEFAULT (now(3)),
 	CONSTRAINT `modules_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint

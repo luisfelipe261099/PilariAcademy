@@ -1,5 +1,5 @@
 import { bootTestApp, type TestApp } from './helpers/app'
-import { createTestDatabase, type TestDatabase } from './helpers/db'
+import { createTestDatabase, esperasDeLock, type TestDatabase } from './helpers/db'
 import { bearer, seedMember, seedTwoPolos, seedUser, type TwoPolos } from './helpers/seed'
 import { eventually } from './helpers/wait'
 
@@ -99,7 +99,7 @@ describe('papéis por polo', () => {
         await outra.query('SELECT uid FROM users WHERE uid = ? FOR UPDATE', ['u-corrida-sync'])
         const resposta = sync(w.a.host, 'u-corrida-sync', { displayName: 'Nome Do Google' }).then((r) => r)
         await eventually(
-          async () => Number(((await t.pool.query("SELECT COUNT(*) AS n FROM information_schema.innodb_trx WHERE trx_state = 'LOCK WAIT'"))[0] as Array<{ n: number }>)[0].n),
+          async () => esperasDeLock(t.pool),
           (n) => n > 0,
           10_000 // em máquina carregada a requisição pode demorar a chegar na trava
         )
@@ -229,7 +229,7 @@ describe('papéis por polo', () => {
         await outra.query('SELECT user_uid FROM tenant_members WHERE tenant_id = ? FOR UPDATE', [w.matriz.id])
         const resposta = papeisNaMatriz('u-matriz-3', ['student'], w.u.adminMatriz).then((r) => r)
         await eventually(
-          async () => Number((await consulta<{ n: number }>("SELECT COUNT(*) AS n FROM information_schema.innodb_trx WHERE trx_state = 'LOCK WAIT'"))[0].n),
+          async () => esperasDeLock(t.pool),
           (n) => n > 0,
           10_000 // em máquina carregada a requisição pode demorar a chegar na trava
         )
